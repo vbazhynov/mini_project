@@ -2,7 +2,7 @@
   "name": "client",
   "private": true,
   "engines": {
-    "node": ">=16 <17",
+    "node": ">=16 <19",
     "npm": ">=8 <9"
   },
   "proxy": "http://localhost:3001/",
