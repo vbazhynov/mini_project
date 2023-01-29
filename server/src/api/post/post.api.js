@@ -37,13 +37,16 @@ const initPost = (fastify, opts, done) => {
     url: PostsApiPath.REACT,
     [ControllerHook.HANDLER]: async req => {
       const reaction = await postService.setReaction(req.user.id, req.body);
-
       if (reaction.post && reaction.post.userId !== req.user.id) {
         // notify a user if someone (not himself) liked his post
         req.io
           .of(SocketNamespace.NOTIFICATION)
           .to(`${reaction.post.userId}`)
-          .emit(NotificationSocketEvent.LIKE_POST);
+          .emit(
+            reaction.isLike
+              ? NotificationSocketEvent.LIKE_POST
+              : NotificationSocketEvent.DISLIKE_POST
+          );
       }
       return reaction;
     }
@@ -53,4 +56,3 @@ const initPost = (fastify, opts, done) => {
 };
 
 export { initPost };
-
