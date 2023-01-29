@@ -11,7 +11,11 @@ import { threadActionCreator } from 'store/actions.js';
 import { image as imageService } from 'services/services.js';
 import { ThreadToolbarKey, UseFormMode } from 'common/enums/enums.js';
 import { Post, Spinner, Checkbox } from 'components/common/common.js';
-import { ExpandedPost, SharedPostLink, AddPost } from './components/components.js';
+import {
+  ExpandedPost,
+  SharedPostLink,
+  AddPost
+} from './components/components.js';
 import { DEFAULT_THREAD_TOOLBAR } from './common/constants.js';
 
 import styles from './styles.module.scss';
@@ -39,19 +43,19 @@ const Thread = () => {
 
   const showOwnPosts = watch(ThreadToolbarKey.SHOW_OWN_POSTS);
 
-  const handlePostsLoad = useCallback(filtersPayload => {
-    dispatch(threadActionCreator.loadPosts(filtersPayload));
-  }, [dispatch]);
-
-  const handleToggleShowOwnPosts = useCallback(
-    () => {
-      postsFilter.userId = showOwnPosts ? userId : undefined;
-      postsFilter.from = 0;
-      handlePostsLoad(postsFilter);
-      postsFilter.from = postsFilter.count; // for the next scroll
+  const handlePostsLoad = useCallback(
+    filtersPayload => {
+      dispatch(threadActionCreator.loadPosts(filtersPayload));
     },
-    [userId, showOwnPosts, handlePostsLoad]
+    [dispatch]
   );
+
+  const handleToggleShowOwnPosts = useCallback(() => {
+    postsFilter.userId = showOwnPosts ? userId : undefined;
+    postsFilter.from = 0;
+    handlePostsLoad(postsFilter);
+    postsFilter.from = postsFilter.count; // for the next scroll
+  }, [userId, showOwnPosts, handlePostsLoad]);
 
   useEffect(() => {
     handleToggleShowOwnPosts();
@@ -59,6 +63,11 @@ const Thread = () => {
 
   const handlePostLike = useCallback(
     id => dispatch(threadActionCreator.likePost(id)),
+    [dispatch]
+  );
+
+  const handlePostDislike = useCallback(
+    id => dispatch(threadActionCreator.dislikePost(id)),
     [dispatch]
   );
 
@@ -121,6 +130,7 @@ const Thread = () => {
             <Post
               post={post}
               onPostLike={handlePostLike}
+              onPostDislike={handlePostDislike}
               onExpandedPostToggle={handleExpandedPostToggle}
               onSharePost={handleSharePost}
               key={post.id}

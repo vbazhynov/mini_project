@@ -1,3 +1,6 @@
+/* eslint-disable indent */
+/* eslint-disable implicit-arrow-linebreak */
+/* eslint-disable no-confusing-arrow */
 class Post {
   constructor({ postRepository, postReactionRepository }) {
     this._postRepository = postRepository;
@@ -21,9 +24,13 @@ class Post {
 
   async setReaction(userId, { postId, isLike = true }) {
     // define the callback for future use as a promise
-    const updateOrDelete = react => (react.isLike === isLike
-      ? this._postReactionRepository.deleteById(react.id)
-      : this._postReactionRepository.updateById(react.id, { isLike }));
+    const updateOrDelete = react =>
+      react.isLike === isLike
+        ? this._postReactionRepository.deleteById(react.id)
+        : this._postReactionRepository.updateById(react.id, {
+            isLike,
+            isReactedBefore: true
+          });
 
     const reaction = await this._postReactionRepository.getPostReaction(
       userId,
