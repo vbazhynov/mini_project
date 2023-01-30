@@ -61,17 +61,18 @@ const toggleExpandedPost = createAsyncThunk(
   }
 );
 
-const likePost = createAsyncThunk(
+const reactPost = createAsyncThunk(
   ActionType.REACT,
-  async (postId, { getState, extra: { services } }) => {
-    const { id, isReactedBefore } = await services.post.likePost(postId);
-    const diff = id ? 1 : -1; // if ID exists then the post was liked, otherwise - like was removed
-    const dislikeDiff = isReactedBefore && id ? 1 : 0; // check previous state and if post was disliked befor
+  async (data, { getState, extra: { services } }) => {
+    const { postId, isLike } = data;
+    const res = isLike
+      ? await services.post.likePost(postId)
+      : await services.post.dislikePost(postId);
+    const { likeCount, dislikeCount } = res.reactionCount;
     const mapLikes = post => ({
       ...post,
-      likeCount: Number(post.likeCount) + diff,
-      dislikeCount: Number(post.dislikeCount) - dislikeDiff
-      // diff is taken from the current closure// diff is taken from the current closure
+      likeCount,
+      dislikeCount
     });
 
     const {
@@ -82,31 +83,6 @@ const likePost = createAsyncThunk(
     );
     const updatedExpandedPost =
       expandedPost?.id === postId ? mapLikes(expandedPost) : undefined;
-
-    return { posts: updated, expandedPost: updatedExpandedPost };
-  }
-);
-
-const dislikePost = createAsyncThunk(
-  ActionType.REACT,
-  async (postId, { getState, extra: { services } }) => {
-    const { id, isReactedBefore } = await services.post.dislikePost(postId);
-    const diff = id ? 1 : -1; // if ID exists then the post was liked, otherwise - like was removed
-    const likeDiff = isReactedBefore ? 1 : 0; // check if post was liked before
-
-    const mapDislikes = post => ({
-      ...post,
-      dislikeCount: Number(post.dislikeCount) + diff,
-      likeCount: Number(post.likeCount) - likeDiff // diff is taken from the current closure
-    });
-    const {
-      posts: { posts, expandedPost }
-    } = getState();
-    const updated = posts.map(post =>
-      post.id !== postId ? post : mapDislikes(post)
-    );
-    const updatedExpandedPost =
-      expandedPost?.id === postId ? mapDislikes(expandedPost) : undefined;
 
     return { posts: updated, expandedPost: updatedExpandedPost };
   }
@@ -146,7 +122,6 @@ export {
   applyPost,
   createPost,
   toggleExpandedPost,
-  likePost,
-  dislikePost,
+  reactPost,
   addComment
 };

@@ -1,3 +1,4 @@
+/* eslint-disable implicit-arrow-linebreak */
 import {
   useState,
   useCallback,
@@ -62,12 +63,13 @@ const Thread = () => {
   }, [showOwnPosts, handleToggleShowOwnPosts]);
 
   const handlePostLike = useCallback(
-    id => dispatch(threadActionCreator.likePost(id)),
+    postId => dispatch(threadActionCreator.reactPost({ postId, isLike: true })),
     [dispatch]
   );
 
   const handlePostDislike = useCallback(
-    id => dispatch(threadActionCreator.dislikePost(id)),
+    postId =>
+      dispatch(threadActionCreator.reactPost({ postId, isLike: false })),
     [dispatch]
   );
 

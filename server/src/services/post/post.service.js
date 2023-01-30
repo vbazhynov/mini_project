@@ -1,3 +1,4 @@
+/* eslint-disable operator-linebreak */
 /* eslint-disable indent */
 /* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable no-confusing-arrow */
@@ -28,23 +29,29 @@ class Post {
       react.isLike === isLike
         ? this._postReactionRepository.deleteById(react.id)
         : this._postReactionRepository.updateById(react.id, {
-            isLike,
-            isReactedBefore: true
+            isLike
           });
 
     const reaction = await this._postReactionRepository.getPostReaction(
       userId,
       postId
     );
-
-    const result = reaction
+    let result = reaction
       ? await updateOrDelete(reaction)
       : await this._postReactionRepository.create({ userId, postId, isLike });
 
-    // the result is an integer when an entity is deleted
-    return Number.isInteger(result)
+    const reactionCount = await this._postReactionRepository.getReactionCount(
+      postId
+    );
+
+    result = Number.isInteger(result)
       ? {}
-      : this._postReactionRepository.getPostReaction(userId, postId);
+      : await this._postReactionRepository.getPostReaction(userId, postId);
+    result.reactionCount = reactionCount || {
+      likeCount: '0',
+      dislikeCount: '0'
+    };
+    return result;
   }
 }
 

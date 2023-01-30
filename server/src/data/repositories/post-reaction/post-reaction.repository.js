@@ -14,6 +14,34 @@ class PostReaction extends Abstract {
       .withGraphFetched('[post]')
       .first();
   }
+
+  getPostLikesById(postId) {
+    return this.model
+      .query()
+      .count('isLike')
+      .where('isLike', true)
+      .where({ postId })
+      .as('likeCount')
+      .first();
+  }
+
+  getPostDislikesById(postId) {
+    return this.model
+      .query()
+      .count('is_like')
+      .where('is_like', false)
+      .where({ postId })
+      .as('dislikeCount')
+      .first();
+  }
+
+  getReactionCount(postId) {
+    return this.model
+      .query()
+      .select(this.getPostLikesById(postId), this.getPostDislikesById(postId))
+      .where({ postId })
+      .first();
+  }
 }
 
 export { PostReaction };
