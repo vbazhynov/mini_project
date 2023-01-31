@@ -38,8 +38,14 @@ class PostReaction extends Abstract {
   getReactionCount(postId) {
     return this.model
       .query()
-      .select(this.getPostLikesById(postId), this.getPostDislikesById(postId))
+      .select(
+        'postId',
+        'userId',
+        this.getPostLikesById(postId),
+        this.getPostDislikesById(postId)
+      )
       .where({ postId })
+      .withGraphFetched('[post]')
       .first();
   }
 }

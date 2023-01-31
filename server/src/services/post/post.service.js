@@ -36,22 +36,18 @@ class Post {
       userId,
       postId
     );
-    let result = reaction
+    const result = reaction
       ? await updateOrDelete(reaction)
       : await this._postReactionRepository.create({ userId, postId, isLike });
-
     const reactionCount = await this._postReactionRepository.getReactionCount(
       postId
     );
-
-    result = Number.isInteger(result)
-      ? {}
-      : await this._postReactionRepository.getPostReaction(userId, postId);
-    result.reactionCount = reactionCount || {
-      likeCount: '0',
-      dislikeCount: '0'
-    };
-    return result;
+    if (Number.isInteger(result)) {
+      delete reactionCount.post;
+    } else {
+      reactionCount.isLike = isLike;
+    }
+    return reactionCount;
   }
 }
 

@@ -37,6 +37,9 @@ const initPost = (fastify, opts, done) => {
     url: PostsApiPath.REACT,
     [ControllerHook.HANDLER]: async req => {
       const reaction = await postService.setReaction(req.user.id, req.body);
+      req.io
+        .of(SocketNamespace.NOTIFICATION)
+        .emit(NotificationSocketEvent.UPDATE_REACTIONS, reaction);
       if (reaction.post && reaction.post.userId !== req.user.id) {
         // notify a user if someone (not himself) liked his post
         req.io
