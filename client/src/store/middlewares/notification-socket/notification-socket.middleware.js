@@ -33,6 +33,14 @@ const notificationSocket = ({ dispatch }) => {
       })
     );
   });
+
+  notificationSocketInstance.on(
+    NotificationSocketEvent.UPDATE_REACTIONS,
+    reaction => {
+      dispatch(threadActionCreator.updateReactions(reaction));
+    }
+  );
+
   notificationSocketInstance.on(NotificationSocketEvent.NEW_POST, post => {
     dispatch(threadActionCreator.applyPost(post));
   });

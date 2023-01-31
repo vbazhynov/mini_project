@@ -65,10 +65,10 @@ const reactPost = createAsyncThunk(
   ActionType.REACT,
   async (data, { getState, extra: { services } }) => {
     const { postId, isLike } = data;
-    const res = isLike
+    console.log(isLike);
+    const { likeCount, dislikeCount } = isLike
       ? await services.post.likePost(postId)
       : await services.post.dislikePost(postId);
-    const { likeCount, dislikeCount } = res.reactionCount;
     const mapLikes = post => ({
       ...post,
       likeCount,
@@ -84,6 +84,26 @@ const reactPost = createAsyncThunk(
     const updatedExpandedPost =
       expandedPost?.id === postId ? mapLikes(expandedPost) : undefined;
 
+    return { posts: updated, expandedPost: updatedExpandedPost };
+  }
+);
+
+const updateReactions = createAsyncThunk(
+  ActionType.UPDATE_REACTIONS,
+  async ({ likeCount, dislikeCount, postId }, { getState }) => {
+    const mapLikes = post => ({
+      ...post,
+      likeCount,
+      dislikeCount
+    });
+    const {
+      posts: { posts, expandedPost }
+    } = getState();
+    const updated = posts.map(post =>
+      post.id !== postId ? post : mapLikes(post)
+    );
+    const updatedExpandedPost =
+      expandedPost?.id === postId ? mapLikes(expandedPost) : undefined;
     return { posts: updated, expandedPost: updatedExpandedPost };
   }
 );
@@ -123,5 +143,6 @@ export {
   createPost,
   toggleExpandedPost,
   reactPost,
+  updateReactions,
   addComment
 };

@@ -42,8 +42,7 @@ class Post {
         method: HttpMethod.PUT,
         contentType: ContentType.JSON,
         payload: JSON.stringify({
-          postId,
-          isLike: true
+          postId
         })
       }
     );
