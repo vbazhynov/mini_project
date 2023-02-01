@@ -7,27 +7,10 @@ import { IconButton, Image } from 'components/common/common';
 
 import styles from './styles.module.scss';
 
-const Post = ({
-  post,
-  onPostLike,
-  onPostDislike,
-  onExpandedPostToggle,
-  onSharePost,
-  onEditPost,
-  userId
-}) => {
-  const {
-    id,
-    image,
-    body,
-    user,
-    likeCount,
-    dislikeCount,
-    commentCount,
-    createdAt
-  } = post;
+const Post = ({ post, onPostLike, onPostDislike, onExpandedPostToggle, onSharePost, onUpdatePost, userId }) => {
+  const { id, image, body, user, likeCount, dislikeCount, commentCount, createdAt } = post;
   const date = getFromNowTime(createdAt);
-  const handleEditPost = () => onEditPost(id);
+  const handleEditPost = () => onUpdatePost(id);
   const handlePostLike = () => onPostLike(id);
   const handlePostDislike = () => onPostDislike(id);
   const handleExpandedPostToggle = () => onExpandedPostToggle(id);
@@ -47,25 +30,10 @@ const Post = ({
         <p className={styles.description}>{body}</p>
       </div>
       <div className={styles.extra}>
-        <IconButton
-          iconName={IconName.THUMBS_UP}
-          label={likeCount}
-          onClick={handlePostLike}
-        />
-        <IconButton
-          iconName={IconName.THUMBS_DOWN}
-          label={dislikeCount}
-          onClick={handlePostDislike}
-        />
-        <IconButton
-          iconName={IconName.COMMENT}
-          label={commentCount}
-          onClick={handleExpandedPostToggle}
-        />
-        <IconButton
-          iconName={IconName.SHARE_ALTERNATE}
-          onClick={handleSharePost}
-        />
+        <IconButton iconName={IconName.THUMBS_UP} label={likeCount} onClick={handlePostLike} />
+        <IconButton iconName={IconName.THUMBS_DOWN} label={dislikeCount} onClick={handlePostDislike} />
+        <IconButton iconName={IconName.COMMENT} label={commentCount} onClick={handleExpandedPostToggle} />
+        <IconButton iconName={IconName.SHARE_ALTERNATE} onClick={handleSharePost} />
       </div>
     </div>
   );
@@ -77,7 +45,7 @@ Post.propTypes = {
   onPostDislike: PropTypes.func.isRequired,
   onExpandedPostToggle: PropTypes.func.isRequired,
   onSharePost: PropTypes.func.isRequired,
-  onEditPost: PropTypes.func.isRequired,
+  onUpdatePost: PropTypes.func.isRequired,
   userId: PropTypes.number.isRequired
 };
 
