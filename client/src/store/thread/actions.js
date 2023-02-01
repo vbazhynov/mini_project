@@ -61,11 +61,18 @@ const toggleExpandedPost = createAsyncThunk(
   }
 );
 
+const togglePostToEdit = createAsyncThunk(
+  ActionType.SET_POST_TO_EDIT,
+  async (postId, { extra: { services } }) => {
+    const post = postId ? await services.post.getPost(postId) : undefined;
+    return { post };
+  }
+);
+
 const reactPost = createAsyncThunk(
   ActionType.REACT,
   async (data, { getState, extra: { services } }) => {
     const { postId, isLike } = data;
-    console.log(isLike);
     const { likeCount, dislikeCount } = isLike
       ? await services.post.likePost(postId)
       : await services.post.dislikePost(postId);
@@ -142,6 +149,7 @@ export {
   applyPost,
   createPost,
   toggleExpandedPost,
+  togglePostToEdit,
   reactPost,
   updateReactions,
   addComment

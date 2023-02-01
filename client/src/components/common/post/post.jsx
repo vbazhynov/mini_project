@@ -12,7 +12,9 @@ const Post = ({
   onPostLike,
   onPostDislike,
   onExpandedPostToggle,
-  onSharePost
+  onSharePost,
+  onEditPost,
+  userId
 }) => {
   const {
     id,
@@ -25,18 +27,22 @@ const Post = ({
     createdAt
   } = post;
   const date = getFromNowTime(createdAt);
-
+  const handleEditPost = () => onEditPost(id);
   const handlePostLike = () => onPostLike(id);
   const handlePostDislike = () => onPostDislike(id);
   const handleExpandedPostToggle = () => onExpandedPostToggle(id);
   const handleSharePost = () => onSharePost(id);
-
   return (
     <div className={styles.card}>
       {image && <Image src={image.link} alt="post image" />}
       <div className={styles.content}>
         <div className={styles.meta}>
           <span>{`posted by ${user.username} - ${date}`}</span>
+          {post.userId === userId && (
+            <div className={styles.topIcon}>
+              <IconButton iconName={IconName.EDIT} onClick={handleEditPost} />
+            </div>
+          )}
         </div>
         <p className={styles.description}>{body}</p>
       </div>
@@ -70,7 +76,9 @@ Post.propTypes = {
   onPostLike: PropTypes.func.isRequired,
   onPostDislike: PropTypes.func.isRequired,
   onExpandedPostToggle: PropTypes.func.isRequired,
-  onSharePost: PropTypes.func.isRequired
+  onSharePost: PropTypes.func.isRequired,
+  onEditPost: PropTypes.func.isRequired,
+  userId: PropTypes.number.isRequired
 };
 
 export { Post };

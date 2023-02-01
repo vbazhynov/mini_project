@@ -15,7 +15,8 @@ import { Post, Spinner, Checkbox } from 'components/common/common.js';
 import {
   ExpandedPost,
   SharedPostLink,
-  AddPost
+  AddPost,
+  UpdatePost
 } from './components/components.js';
 import { DEFAULT_THREAD_TOOLBAR } from './common/constants.js';
 
@@ -29,12 +30,15 @@ const postsFilter = {
 
 const Thread = () => {
   const dispatch = useDispatch();
-  const { posts, hasMorePosts, expandedPost, userId } = useSelector(state => ({
-    posts: state.posts.posts,
-    hasMorePosts: state.posts.hasMorePosts,
-    expandedPost: state.posts.expandedPost,
-    userId: state.profile.user.id
-  }));
+  const { posts, hasMorePosts, expandedPost, userId, postToEdit } = useSelector(
+    state => ({
+      posts: state.posts.posts,
+      hasMorePosts: state.posts.hasMorePosts,
+      expandedPost: state.posts.expandedPost,
+      userId: state.profile.user.id,
+      postToEdit: state.posts.postToEdit
+    })
+  );
   const [sharedPostId, setSharedPostId] = useState(undefined);
 
   const { control, watch } = useAppForm({
@@ -77,6 +81,9 @@ const Thread = () => {
     id => dispatch(threadActionCreator.toggleExpandedPost(id)),
     [dispatch]
   );
+
+  const handleEditPost = id =>
+    dispatch(threadActionCreator.togglePostToEdit(id), [dispatch]);
 
   const handlePostAdd = useCallback(
     postPayload => dispatch(threadActionCreator.createPost(postPayload)),
@@ -135,12 +142,15 @@ const Thread = () => {
               onPostDislike={handlePostDislike}
               onExpandedPostToggle={handleExpandedPostToggle}
               onSharePost={handleSharePost}
+              onEditPost={handleEditPost}
               key={post.id}
+              userId={userId}
             />
           ))}
         </InfiniteScroll>
       </div>
       {expandedPost && <ExpandedPost onSharePost={handleSharePost} />}
+      {postToEdit && <UpdatePost onSharePost={handleSharePost} />}
       {sharedPostId && (
         <SharedPostLink
           postId={sharedPostId}

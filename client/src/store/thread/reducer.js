@@ -3,6 +3,7 @@ import {
   loadPosts,
   loadMorePosts,
   toggleExpandedPost,
+  togglePostToEdit,
   reactPost,
   addComment,
   updateReactions,
@@ -36,6 +37,11 @@ const reducer = createReducer(initialState, builder => {
     const { post } = action.payload;
 
     state.expandedPost = post;
+  });
+  builder.addCase(togglePostToEdit.fulfilled, (state, action) => {
+    const { post } = action.payload;
+
+    state.postToEdit = post;
   });
   builder.addMatcher(
     isAnyOf(
