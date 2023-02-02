@@ -2,6 +2,11 @@
 /* eslint-disable indent */
 /* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable no-confusing-arrow */
+
+import { ForbiddenError } from 'shared/src/exceptions/exceptions.js';
+import { ExceptionMessage } from 'shared/src/common/enums/enums.js';
+import { verifyToken } from '../../helpers/helpers.js';
+
 class Post {
   constructor({ postRepository, postReactionRepository }) {
     this._postRepository = postRepository;
@@ -23,8 +28,14 @@ class Post {
     });
   }
 
-  updateById({ postId, body }) {
-    return this._postRepository.updateById(postId, { body });
+  updateById(postId, { body, userId }, token) {
+    const { id } = verifyToken(token.slice(7));
+    console.log(id);
+    if (!(userId === id)) {
+      throw new ForbiddenError(ExceptionMessage.INVALID_TOKEN);
+    } else {
+      return this._postRepository.updateById(postId, { body });
+    }
   }
 
   async setReaction(userId, { postId, isLike = true }) {

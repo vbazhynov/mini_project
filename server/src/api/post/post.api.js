@@ -6,6 +6,7 @@ import {
   SocketNamespace,
   NotificationSocketEvent
 } from '../../common/enums/enums.js';
+import { getErrorStatusCode } from '../../helpers/helpers.js';
 
 const initPost = (fastify, opts, done) => {
   const { post: postService } = opts.services;
@@ -24,12 +25,14 @@ const initPost = (fastify, opts, done) => {
 
   fastify.route({
     method: HttpMethod.PUT,
-    url: PostsApiPath.ROOT,
+    url: PostsApiPath.$ID,
     [ControllerHook.HANDLER]: async (req, res) => {
-      const post = await postService.updateById(req.body);
-      // notify all users that a new post was created
-      // req.io.of(SocketNamespace.NOTIFICATION).emit(NotificationSocketEvent.UPDATE_POST, post);
-      return res.status(HttpCode.OK).send(post);
+      try {
+        const post = await postService.updateById(req.params.id, req.body, req.headers.authorization);
+        return res.status(HttpCode.OK).send(post);
+      } catch (err) {
+        return res.status(getErrorStatusCode(err)).send(err);
+      }
     }
   });
 

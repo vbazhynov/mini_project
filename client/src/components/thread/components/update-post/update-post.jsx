@@ -10,8 +10,9 @@ const UpdatePost = ({ postId, onPostUpdate, onUploadImage }) => {
   const [image, setImage] = useState(undefined);
   const [isUploading, setIsUploading] = useState(false);
   const dispatch = useDispatch();
-  const { post } = useSelector(state => ({
-    post: state.posts.postToEdit
+  const { post, userId } = useSelector(state => ({
+    post: state.posts.postToEdit,
+    userId: state.profile.user.id
   }));
 
   const { control, handleSubmit, reset } = useAppForm({
@@ -40,12 +41,12 @@ const UpdatePost = ({ postId, onPostUpdate, onUploadImage }) => {
       if (!values.body) {
         return;
       }
-      onPostUpdate({ postId, imageId: image?.imageId, body: values.body }).then(() => {
+      onPostUpdate({ userId, postId, imageId: image?.imageId, body: values.body }).then(() => {
         reset();
         setImage(undefined);
       });
     },
-    [image, reset, onPostUpdate, postId]
+    [userId, image, reset, onPostUpdate, postId]
   );
 
   const handleEditPostToggle = useCallback(id => dispatch(threadActionCreator.togglePostToEdit(id)), [dispatch]);
