@@ -3,8 +3,9 @@ import {
   loadPosts,
   loadMorePosts,
   toggleExpandedPost,
-  likePost,
+  reactPost,
   addComment,
+  updateReactions,
   applyPost,
   createPost
 } from './actions.js';
@@ -37,7 +38,11 @@ const reducer = createReducer(initialState, builder => {
     state.expandedPost = post;
   });
   builder.addMatcher(
-    isAnyOf(likePost.fulfilled, addComment.fulfilled),
+    isAnyOf(
+      reactPost.fulfilled,
+      addComment.fulfilled,
+      updateReactions.fulfilled
+    ),
     (state, action) => {
       const { posts, expandedPost } = action.payload;
       state.posts = posts;

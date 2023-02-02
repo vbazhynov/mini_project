@@ -1,3 +1,7 @@
+/* eslint-disable operator-linebreak */
+/* eslint-disable function-paren-newline */
+/* eslint-disable implicit-arrow-linebreak */
+/* eslint-disable no-confusing-arrow */
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ActionType } from './common.js';
 
@@ -27,7 +31,9 @@ const loadMorePosts = createAsyncThunk(
 const applyPost = createAsyncThunk(
   ActionType.ADD_POST,
   async ({ id: postId, userId }, { getState, extra: { services } }) => {
-    const { profile: { user } } = getState();
+    const {
+      profile: { user }
+    } = getState();
     if (userId === user.id) {
       return { post: null };
     }
@@ -55,27 +61,49 @@ const toggleExpandedPost = createAsyncThunk(
   }
 );
 
-const likePost = createAsyncThunk(
+const reactPost = createAsyncThunk(
   ActionType.REACT,
-  async (postId, { getState, extra: { services } }) => {
-    const { id } = await services.post.likePost(postId);
-    const diff = id ? 1 : -1; // if ID exists then the post was liked, otherwise - like was removed
-
+  async (data, { getState, extra: { services } }) => {
+    const { postId, isLike } = data;
+    console.log(isLike);
+    const { likeCount, dislikeCount } = isLike
+      ? await services.post.likePost(postId)
+      : await services.post.dislikePost(postId);
     const mapLikes = post => ({
       ...post,
-      likeCount: Number(post.likeCount) + diff // diff is taken from the current closure
+      likeCount,
+      dislikeCount
     });
 
     const {
       posts: { posts, expandedPost }
     } = getState();
-    const updated = posts.map(post => (
+    const updated = posts.map(post =>
       post.id !== postId ? post : mapLikes(post)
-    ));
-    const updatedExpandedPost = expandedPost?.id === postId
-      ? mapLikes(expandedPost)
-      : undefined;
+    );
+    const updatedExpandedPost =
+      expandedPost?.id === postId ? mapLikes(expandedPost) : undefined;
 
+    return { posts: updated, expandedPost: updatedExpandedPost };
+  }
+);
+
+const updateReactions = createAsyncThunk(
+  ActionType.UPDATE_REACTIONS,
+  async ({ likeCount, dislikeCount, postId }, { getState }) => {
+    const mapLikes = post => ({
+      ...post,
+      likeCount,
+      dislikeCount
+    });
+    const {
+      posts: { posts, expandedPost }
+    } = getState();
+    const updated = posts.map(post =>
+      post.id !== postId ? post : mapLikes(post)
+    );
+    const updatedExpandedPost =
+      expandedPost?.id === postId ? mapLikes(expandedPost) : undefined;
     return { posts: updated, expandedPost: updatedExpandedPost };
   }
 );
@@ -95,13 +123,14 @@ const addComment = createAsyncThunk(
     const {
       posts: { posts, expandedPost }
     } = getState();
-    const updated = posts.map(post => (
+    const updated = posts.map(post =>
       post.id !== comment.postId ? post : mapComments(post)
-    ));
+    );
 
-    const updatedExpandedPost = expandedPost?.id === comment.postId
-      ? mapComments(expandedPost)
-      : undefined;
+    const updatedExpandedPost =
+      expandedPost?.id === comment.postId
+        ? mapComments(expandedPost)
+        : undefined;
 
     return { posts: updated, expandedPost: updatedExpandedPost };
   }
@@ -113,6 +142,7 @@ export {
   applyPost,
   createPost,
   toggleExpandedPost,
-  likePost,
+  reactPost,
+  updateReactions,
   addComment
 };
