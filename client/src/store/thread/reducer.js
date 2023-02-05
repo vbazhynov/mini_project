@@ -3,11 +3,14 @@ import {
   loadPosts,
   loadMorePosts,
   toggleExpandedPost,
+  togglePostToEdit,
   reactPost,
   addComment,
   updateReactions,
   applyPost,
-  createPost
+  createPost,
+  updatePost,
+  deletePost
 } from './actions.js';
 
 const initialState = {
@@ -37,11 +40,18 @@ const reducer = createReducer(initialState, builder => {
 
     state.expandedPost = post;
   });
+  builder.addMatcher(isAnyOf(togglePostToEdit.fulfilled, updatePost.fulfilled), (state, action) => {
+    const { post } = action.payload;
+
+    state.postToEdit = post;
+  });
   builder.addMatcher(
     isAnyOf(
       reactPost.fulfilled,
       addComment.fulfilled,
-      updateReactions.fulfilled
+      updateReactions.fulfilled,
+      updatePost.fulfilled,
+      deletePost.fulfilled
     ),
     (state, action) => {
       const { posts, expandedPost } = action.payload;
@@ -49,16 +59,13 @@ const reducer = createReducer(initialState, builder => {
       state.expandedPost = expandedPost;
     }
   );
-  builder.addMatcher(
-    isAnyOf(applyPost.fulfilled, createPost.fulfilled),
-    (state, action) => {
-      const { post } = action.payload;
+  builder.addMatcher(isAnyOf(applyPost.fulfilled, createPost.fulfilled), (state, action) => {
+    const { post } = action.payload;
 
-      if (post) {
-        state.posts = [post, ...state.posts];
-      }
+    if (post) {
+      state.posts = [post, ...state.posts];
     }
-  );
+  });
 });
 
 export { reducer };

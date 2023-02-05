@@ -1,22 +1,11 @@
 /* eslint-disable implicit-arrow-linebreak */
-import {
-  useState,
-  useCallback,
-  useEffect,
-  useAppForm,
-  useDispatch,
-  useSelector
-} from 'hooks/hooks.js';
+import { useState, useCallback, useEffect, useAppForm, useDispatch, useSelector } from 'hooks/hooks.js';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { threadActionCreator } from 'store/actions.js';
 import { image as imageService } from 'services/services.js';
 import { ThreadToolbarKey, UseFormMode } from 'common/enums/enums.js';
 import { Post, Spinner, Checkbox } from 'components/common/common.js';
-import {
-  ExpandedPost,
-  SharedPostLink,
-  AddPost
-} from './components/components.js';
+import { ExpandedPost, SharedPostLink, AddPost, UpdatePost } from './components/components.js';
 import { DEFAULT_THREAD_TOOLBAR } from './common/constants.js';
 
 import styles from './styles.module.scss';
@@ -29,11 +18,12 @@ const postsFilter = {
 
 const Thread = () => {
   const dispatch = useDispatch();
-  const { posts, hasMorePosts, expandedPost, userId } = useSelector(state => ({
+  const { posts, hasMorePosts, expandedPost, userId, postToEdit } = useSelector(state => ({
     posts: state.posts.posts,
     hasMorePosts: state.posts.hasMorePosts,
     expandedPost: state.posts.expandedPost,
-    userId: state.profile.user.id
+    userId: state.profile.user.id,
+    postToEdit: state.posts.postToEdit
   }));
   const [sharedPostId, setSharedPostId] = useState(undefined);
 
@@ -68,18 +58,24 @@ const Thread = () => {
   );
 
   const handlePostDislike = useCallback(
-    postId =>
-      dispatch(threadActionCreator.reactPost({ postId, isLike: false })),
+    postId => dispatch(threadActionCreator.reactPost({ postId, isLike: false })),
     [dispatch]
   );
 
-  const handleExpandedPostToggle = useCallback(
-    id => dispatch(threadActionCreator.toggleExpandedPost(id)),
+  const handleExpandedPostToggle = useCallback(id => dispatch(threadActionCreator.toggleExpandedPost(id)), [dispatch]);
+
+  const handleUpdatePostToggle = id => dispatch(threadActionCreator.togglePostToEdit(id), [dispatch]);
+
+  const handlePostUpdate = useCallback(
+    postPayload => dispatch(threadActionCreator.updatePost(postPayload)),
     [dispatch]
   );
 
-  const handlePostAdd = useCallback(
-    postPayload => dispatch(threadActionCreator.createPost(postPayload)),
+  const handlePostAdd = useCallback(postPayload => dispatch(threadActionCreator.createPost(postPayload)), [dispatch]);
+  const handlePostDelete = useCallback(
+    postPayload => {
+      dispatch(threadActionCreator.deletePost(postPayload));
+    },
     [dispatch]
   );
 
@@ -113,11 +109,7 @@ const Thread = () => {
       </div>
       <form name="thread-toolbar">
         <div className={styles.toolbar}>
-          <Checkbox
-            name={ThreadToolbarKey.SHOW_OWN_POSTS}
-            control={control}
-            label="Show only my posts"
-          />
+          <Checkbox name={ThreadToolbarKey.SHOW_OWN_POSTS} control={control} label="Show only my posts" />
         </div>
       </form>
       <div className={styles.posts}>
@@ -135,18 +127,25 @@ const Thread = () => {
               onPostDislike={handlePostDislike}
               onExpandedPostToggle={handleExpandedPostToggle}
               onSharePost={handleSharePost}
+              onUpdatePost={handleUpdatePostToggle}
+              onDeletePost={handlePostDelete}
               key={post.id}
+              userId={userId}
             />
           ))}
         </InfiniteScroll>
       </div>
-      {expandedPost && <ExpandedPost onSharePost={handleSharePost} />}
-      {sharedPostId && (
-        <SharedPostLink
-          postId={sharedPostId}
-          onClose={handleCloseSharedPostLink}
+      {expandedPost && (
+        <ExpandedPost
+          onSharePost={handleSharePost}
+          onUpdatePost={handleUpdatePostToggle}
+          onDeletePost={handlePostDelete}
         />
       )}
+      {postToEdit && (
+        <UpdatePost postId={postToEdit.id} onPostUpdate={handlePostUpdate} onUploadImage={handleUploadImage} />
+      )}
+      {sharedPostId && <SharedPostLink postId={sharedPostId} onClose={handleCloseSharedPostLink} />}
     </div>
   );
 };

@@ -2,6 +2,11 @@
 /* eslint-disable indent */
 /* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable no-confusing-arrow */
+
+import { ForbiddenError, HttpError } from 'shared/src/exceptions/exceptions.js';
+import { ExceptionMessage, HttpCode } from 'shared/src/common/enums/enums.js';
+import { verifyToken } from '../../helpers/helpers.js';
+
 class Post {
   constructor({ postRepository, postReactionRepository }) {
     this._postRepository = postRepository;
@@ -16,11 +21,36 @@ class Post {
     return this._postRepository.getPostById(id);
   }
 
+  async deleteById(postId, token) {
+    const post = await this._postRepository.getById(postId);
+    if (!post) {
+      throw new HttpError({ message: 'Post Not Found', status: HttpCode.NOT_FOUND });
+    } else {
+      const { id } = verifyToken(token.slice(7));
+      if (post.userId !== id) {
+        throw new ForbiddenError(ExceptionMessage.INVALID_TOKEN);
+      } else {
+        return this._postRepository.softDeleteById(postId);
+      }
+    }
+  }
+
   create(userId, post) {
     return this._postRepository.create({
       ...post,
       userId
     });
+  }
+
+  async updateById(postId, { body }, token) {
+    const { userId } = await this.getById(postId);
+    const { id } = verifyToken(token.slice(7));
+    // console.log(`userId: ${userId} ... id: ${id}`);
+    if (!(userId === id)) {
+      throw new ForbiddenError(ExceptionMessage.INVALID_TOKEN);
+    } else {
+      return this._postRepository.updateById(postId, { body });
+    }
   }
 
   async setReaction(userId, { postId, isLike = true }) {
@@ -32,16 +62,11 @@ class Post {
             isLike
           });
 
-    const reaction = await this._postReactionRepository.getPostReaction(
-      userId,
-      postId
-    );
+    const reaction = await this._postReactionRepository.getPostReaction(userId, postId);
     const result = reaction
       ? await updateOrDelete(reaction)
       : await this._postReactionRepository.create({ userId, postId, isLike });
-    const reactionCount = await this._postReactionRepository.getReactionCount(
-      postId
-    );
+    const reactionCount = await this._postReactionRepository.getReactionCount(postId);
     if (Number.isInteger(result)) {
       delete reactionCount.post;
     } else {
