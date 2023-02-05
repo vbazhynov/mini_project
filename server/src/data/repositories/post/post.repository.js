@@ -1,6 +1,5 @@
 import { Abstract } from '../abstract/abstract.repository.js';
 import { getCommentsCountQuery, getReactionsQuery, getFilteredQuery } from './helpers.js';
-import { getCommentsCountQuery, getReactionsQuery, getFilteredQuery } from './helpers.js';
 
 class Post extends Abstract {
   constructor({ postModel }) {
