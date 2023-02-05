@@ -13,9 +13,8 @@ class Post {
     this._postReactionRepository = postReactionRepository;
   }
 
-  async getPosts(filter) {
-    const posts = await this._postRepository.getPosts(filter);
-    return posts;
+  getPosts(filter) {
+    return this._postRepository.getPosts(filter);
   }
 
   getById(id) {

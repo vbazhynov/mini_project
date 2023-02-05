@@ -9,7 +9,6 @@ class Post extends Abstract {
 
   getPosts(filter) {
     const { from: offset, count: limit, userId, userMode } = filter;
-    // console.log(`${userId}...${JSON.stringify(filter)}...`);
     return this.model
       .query()
       .select(
