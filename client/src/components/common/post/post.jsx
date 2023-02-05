@@ -7,14 +7,24 @@ import { IconButton, Image } from 'components/common/common';
 
 import styles from './styles.module.scss';
 
-const Post = ({ post, onPostLike, onPostDislike, onExpandedPostToggle, onSharePost, onUpdatePost, userId }) => {
+const Post = ({
+  post,
+  onPostLike,
+  onPostDislike,
+  onExpandedPostToggle,
+  onSharePost,
+  onUpdatePost,
+  userId,
+  onDeletePost
+}) => {
   const { id, image, body, user, likeCount, dislikeCount, commentCount, createdAt } = post;
   const date = getFromNowTime(createdAt);
-  const handleEditPost = () => onUpdatePost(id);
+  const handleUpdatePost = () => onUpdatePost(id);
   const handlePostLike = () => onPostLike(id);
   const handlePostDislike = () => onPostDislike(id);
   const handleExpandedPostToggle = () => onExpandedPostToggle(id);
   const handleSharePost = () => onSharePost(id);
+  const handleDeletePost = () => onDeletePost(id);
   return (
     <div className={styles.card}>
       {image && <Image src={image.link} alt="post image" />}
@@ -23,7 +33,8 @@ const Post = ({ post, onPostLike, onPostDislike, onExpandedPostToggle, onSharePo
           <span>{`posted by ${user.username} - ${date}`}</span>
           {post.userId === userId && (
             <div className={styles.topIcon}>
-              <IconButton iconName={IconName.EDIT} onClick={handleEditPost} />
+              <IconButton iconName={IconName.EDIT} onClick={handleUpdatePost} />
+              <IconButton iconName={IconName.DELETE} onClick={handleDeletePost} />
             </div>
           )}
         </div>
@@ -46,6 +57,7 @@ Post.propTypes = {
   onExpandedPostToggle: PropTypes.func.isRequired,
   onSharePost: PropTypes.func.isRequired,
   onUpdatePost: PropTypes.func.isRequired,
+  onDeletePost: PropTypes.func.isRequired,
   userId: PropTypes.number.isRequired
 };
 

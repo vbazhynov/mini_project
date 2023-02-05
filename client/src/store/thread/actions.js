@@ -57,6 +57,19 @@ const createPost = createAsyncThunk(ActionType.ADD_POST, async (post, { extra: {
   return { post: newPost };
 });
 
+const deletePost = createAsyncThunk(ActionType.DELETE_POST, async (id, { getState, extra: { services } }) => {
+  const {
+    posts: { posts, expandedPost }
+  } = getState();
+  const isPostDeleted = await services.post.deletePost(id);
+  if (isPostDeleted) {
+    const updated = posts.filter(post => post.id !== id);
+    const updatedExpandedPost = expandedPost && undefined;
+    return { posts: updated, expandedPost: updatedExpandedPost };
+  }
+  return { posts, expandedPost };
+});
+
 const toggleExpandedPost = createAsyncThunk(ActionType.SET_EXPANDED_POST, async (postId, { extra: { services } }) => {
   const post = postId ? await services.post.getPost(postId) : undefined;
   return { post };
@@ -130,6 +143,7 @@ export {
   applyPost,
   updatePost,
   createPost,
+  deletePost,
   toggleExpandedPost,
   togglePostToEdit,
   reactPost,

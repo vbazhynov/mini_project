@@ -72,6 +72,12 @@ const Thread = () => {
   );
 
   const handlePostAdd = useCallback(postPayload => dispatch(threadActionCreator.createPost(postPayload)), [dispatch]);
+  const handlePostDelete = useCallback(
+    postPayload => {
+      dispatch(threadActionCreator.deletePost(postPayload));
+    },
+    [dispatch]
+  );
 
   const handleMorePostsLoad = useCallback(
     filtersPayload => {
@@ -122,13 +128,20 @@ const Thread = () => {
               onExpandedPostToggle={handleExpandedPostToggle}
               onSharePost={handleSharePost}
               onUpdatePost={handleUpdatePostToggle}
+              onDeletePost={handlePostDelete}
               key={post.id}
               userId={userId}
             />
           ))}
         </InfiniteScroll>
       </div>
-      {expandedPost && <ExpandedPost onSharePost={handleSharePost} onUpdatePost={handleUpdatePostToggle} />}
+      {expandedPost && (
+        <ExpandedPost
+          onSharePost={handleSharePost}
+          onUpdatePost={handleUpdatePostToggle}
+          onDeletePost={handlePostDelete}
+        />
+      )}
       {postToEdit && (
         <UpdatePost postId={postToEdit.id} onPostUpdate={handlePostUpdate} onUploadImage={handleUploadImage} />
       )}

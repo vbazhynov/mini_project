@@ -14,6 +14,7 @@ const postType = PropTypes.exact({
   commentCount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   comments: PropTypes.arrayOf(commentType),
   userId: PropTypes.number.isRequired,
+  deletedAt: PropTypes.string,
   user: PropTypes.exact({
     id: PropTypes.number.isRequired,
     username: PropTypes.string.isRequired,

@@ -24,6 +24,19 @@ const initPost = (fastify, opts, done) => {
   });
 
   fastify.route({
+    method: HttpMethod.DELETE,
+    url: PostsApiPath.$ID,
+    [ControllerHook.HANDLER]: async (req, res) => {
+      try {
+        const isPostDeleted = await postService.deleteById(req.params.id, req.headers.authorization);
+        return res.status(HttpCode.OK).send(Boolean(isPostDeleted));
+      } catch (err) {
+        return res.status(getErrorStatusCode(err)).send(err);
+      }
+    }
+  });
+
+  fastify.route({
     method: HttpMethod.PUT,
     url: PostsApiPath.$ID,
     [ControllerHook.HANDLER]: async (req, res) => {

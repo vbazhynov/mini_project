@@ -9,7 +9,8 @@ import {
   updateReactions,
   applyPost,
   createPost,
-  updatePost
+  updatePost,
+  deletePost
 } from './actions.js';
 
 const initialState = {
@@ -45,7 +46,13 @@ const reducer = createReducer(initialState, builder => {
     state.postToEdit = post;
   });
   builder.addMatcher(
-    isAnyOf(reactPost.fulfilled, addComment.fulfilled, updateReactions.fulfilled, updatePost.fulfilled),
+    isAnyOf(
+      reactPost.fulfilled,
+      addComment.fulfilled,
+      updateReactions.fulfilled,
+      updatePost.fulfilled,
+      deletePost.fulfilled
+    ),
     (state, action) => {
       const { posts, expandedPost } = action.payload;
       state.posts = posts;

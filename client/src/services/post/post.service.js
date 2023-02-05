@@ -19,6 +19,12 @@ class Post {
     });
   }
 
+  deletePost(id) {
+    return this._http.load(`${this._apiPath}${ApiPath.POSTS}${PostsApiPath.ROOT}${id}`, {
+      method: HttpMethod.DELETE
+    });
+  }
+
   addPost(payload) {
     return this._http.load(`${this._apiPath}${ApiPath.POSTS}`, {
       method: HttpMethod.POST,

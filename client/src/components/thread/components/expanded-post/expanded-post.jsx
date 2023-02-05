@@ -5,7 +5,7 @@ import { Spinner, Post, Modal } from 'components/common/common.js';
 import { Comment, AddComment } from 'components/thread/components/components.js';
 import { getSortedComments } from './helpers/helpers.js';
 
-const ExpandedPost = ({ onSharePost, onUpdatePost }) => {
+const ExpandedPost = ({ onSharePost, onUpdatePost, onDeletePost }) => {
   const dispatch = useDispatch();
   const { post, userId } = useSelector(state => ({
     post: state.posts.expandedPost,
@@ -44,6 +44,7 @@ const ExpandedPost = ({ onSharePost, onUpdatePost }) => {
             onExpandedPostToggle={handleExpandedPostToggle}
             onSharePost={onSharePost}
             onUpdatePost={onUpdatePost}
+            onDeletePost={onDeletePost}
             userId={userId}
           />
           <div>
@@ -63,7 +64,8 @@ const ExpandedPost = ({ onSharePost, onUpdatePost }) => {
 
 ExpandedPost.propTypes = {
   onSharePost: PropTypes.func.isRequired,
-  onUpdatePost: PropTypes.func.isRequired
+  onUpdatePost: PropTypes.func.isRequired,
+  onDeletePost: PropTypes.func.isRequired
 };
 
 export { ExpandedPost };

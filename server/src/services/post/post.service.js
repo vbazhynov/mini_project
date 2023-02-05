@@ -3,8 +3,8 @@
 /* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable no-confusing-arrow */
 
-import { ForbiddenError } from 'shared/src/exceptions/exceptions.js';
-import { ExceptionMessage } from 'shared/src/common/enums/enums.js';
+import { ForbiddenError, HttpError } from 'shared/src/exceptions/exceptions.js';
+import { ExceptionMessage, HttpCode } from 'shared/src/common/enums/enums.js';
 import { verifyToken } from '../../helpers/helpers.js';
 
 class Post {
@@ -21,6 +21,20 @@ class Post {
     return this._postRepository.getPostById(id);
   }
 
+  async deleteById(postId, token) {
+    const post = await this._postRepository.getById(postId);
+    if (!post) {
+      throw new HttpError({ message: 'Post Not Found', status: HttpCode.NOT_FOUND });
+    } else {
+      const { id } = verifyToken(token.slice(7));
+      if (post.userId !== id) {
+        throw new ForbiddenError(ExceptionMessage.INVALID_TOKEN);
+      } else {
+        return this._postRepository.softDeleteById(postId);
+      }
+    }
+  }
+
   create(userId, post) {
     return this._postRepository.create({
       ...post,
@@ -28,9 +42,10 @@ class Post {
     });
   }
 
-  updateById(postId, { body, userId }, token) {
+  async updateById(postId, { body }, token) {
+    const { userId } = await this.getById(postId);
     const { id } = verifyToken(token.slice(7));
-    console.log(id);
+    // console.log(`userId: ${userId} ... id: ${id}`);
     if (!(userId === id)) {
       throw new ForbiddenError(ExceptionMessage.INVALID_TOKEN);
     } else {
