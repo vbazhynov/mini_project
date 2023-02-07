@@ -1,9 +1,5 @@
 import { Abstract } from '../abstract/abstract.repository.js';
-import {
-  getCommentsCountQuery,
-  getReactionsQuery,
-  getWhereUserIdQuery
-} from './helpers.js';
+import { getCommentsCountQuery, getReactionsQuery, getFilteredQuery } from './helpers.js';
 
 class Post extends Abstract {
   constructor({ postModel }) {
@@ -11,8 +7,7 @@ class Post extends Abstract {
   }
 
   getPosts(filter) {
-    const { from: offset, count: limit, userId } = filter;
-
+    const { from: offset, count: limit, userId, userMode } = filter;
     return this.model
       .query()
       .select(
@@ -21,7 +16,9 @@ class Post extends Abstract {
         getReactionsQuery(this.model)(true),
         getReactionsQuery(this.model)(false)
       )
-      .where(getWhereUserIdQuery(userId))
+      .modify(getFilteredQuery(userMode, userId))
+      .modify(getFilteredQuery(userMode, userId))
+      .where('deletedAt', null)
       .withGraphFetched('[image, user.image]')
       .orderBy('createdAt', 'desc')
       .offset(offset)

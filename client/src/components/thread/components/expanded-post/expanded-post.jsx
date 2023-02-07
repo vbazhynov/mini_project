@@ -5,42 +5,47 @@ import { Spinner, Post, Modal } from 'components/common/common.js';
 import { Comment, AddComment } from 'components/thread/components/components.js';
 import { getSortedComments } from './helpers/helpers.js';
 
-const ExpandedPost = ({
-  onSharePost
-}) => {
+const ExpandedPost = ({ onSharePost, onUpdatePost, onDeletePost }) => {
   const dispatch = useDispatch();
-  const { post } = useSelector(state => ({
-    post: state.posts.expandedPost
+  const { post, userId } = useSelector(state => ({
+    post: state.posts.expandedPost,
+    userId: state.profile.user.id
   }));
 
-  const handlePostLike = useCallback(id => (
-    dispatch(threadActionCreator.likePost(id))
-  ), [dispatch]);
+  const handlePostLike = useCallback(
+    postId => dispatch(threadActionCreator.reactPost({ postId, isLike: true })),
+    [dispatch]
+  );
 
-  const handleCommentAdd = useCallback(commentPayload => (
-    dispatch(threadActionCreator.addComment(commentPayload))
-  ), [dispatch]);
+  const handlePostDislike = useCallback(
+    postId => dispatch(threadActionCreator.reactPost({ postId, isLike: false })),
+    [dispatch]
+  );
 
-  const handleExpandedPostToggle = useCallback(id => (
-    dispatch(threadActionCreator.toggleExpandedPost(id))
-  ), [dispatch]);
+  const handleCommentAdd = useCallback(
+    commentPayload => dispatch(threadActionCreator.addComment(commentPayload)),
+    [dispatch]
+  );
+
+  const handleExpandedPostToggle = useCallback(id => dispatch(threadActionCreator.toggleExpandedPost(id)), [dispatch]);
 
   const handleExpandedPostClose = () => handleExpandedPostToggle();
 
   const sortedComments = getSortedComments(post.comments ?? []);
 
   return (
-    <Modal
-      isOpen
-      onClose={handleExpandedPostClose}
-    >
+    <Modal isOpen onClose={handleExpandedPostClose}>
       {post ? (
         <>
           <Post
             post={post}
             onPostLike={handlePostLike}
+            onPostDislike={handlePostDislike}
             onExpandedPostToggle={handleExpandedPostToggle}
             onSharePost={onSharePost}
+            onUpdatePost={onUpdatePost}
+            onDeletePost={onDeletePost}
+            userId={userId}
           />
           <div>
             <h3>Comments</h3>
@@ -58,7 +63,9 @@ const ExpandedPost = ({
 };
 
 ExpandedPost.propTypes = {
-  onSharePost: PropTypes.func.isRequired
+  onSharePost: PropTypes.func.isRequired,
+  onUpdatePost: PropTypes.func.isRequired,
+  onDeletePost: PropTypes.func.isRequired
 };
 
 export { ExpandedPost };
